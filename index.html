@@ -1,77 +1,1279 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#050505"><link rel="manifest" href="manifest.webmanifest"><title>EVOLVE</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#050505">
+<title>EVOLVE — Financeiro</title>
+
 <style>
-:root{--bg:#050505;--card:#111113;--line:#29292d;--text:#f5f5f7;--muted:#8e8e93;--hot:#ff8a2a;--green:#32d74b}
-*{box-sizing:border-box}body{margin:0;background:#000;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial}
-main{max-width:430px;min-height:100vh;margin:auto;background:var(--bg);padding:20px 18px 105px}
-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.ey{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.title{font-size:30px;font-weight:800}.avatar{width:38px;height:38px;border-radius:50%;background:#18181a;display:grid;place-items:center;color:var(--hot);font-weight:800}
-.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:17px;margin:10px 0}.row{display:flex;justify-content:space-between;align-items:center;gap:10px}.score{font-size:52px;font-weight:800}.big{font-size:30px;font-weight:800}.orange{color:var(--hot)}.green{color:var(--green)}.muted{color:var(--muted);font-size:12px}
-.section{display:flex;justify-content:space-between;align-items:center;margin:20px 2px 8px}.section h2{font-size:16px;margin:0}.link{border:0;background:none;color:var(--hot);font-weight:700}
-.empty{text-align:center;color:var(--muted);padding:22px 8px;font-size:13px}.task,.bill{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.task:last-child,.bill:last-child{border:0}
-.check{width:23px;height:23px;border:1px solid #555;border-radius:50%;display:grid;place-items:center;flex:none}.done{background:var(--hot);border-color:var(--hot);color:#000}.tasktext{flex:1}.tasktext b{font-size:15px}.tasktext div{font-size:12px;color:var(--muted);margin-top:3px}
-.delete{border:0;background:none;color:#777;font-size:20px}.metric{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}.metric:last-child{border:0}
-.screen{display:none}.screen.active{display:block}nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);display:flex;justify-content:space-around;background:rgba(8,8,9,.96);backdrop-filter:blur(20px);border-top:1px solid var(--line);padding:10px 4px calc(10px + env(safe-area-inset-bottom));z-index:5}
-nav button{background:none;border:0;color:#77777d;font-size:10px}nav button b{display:block;font-size:20px;margin-bottom:3px}nav button.active{color:var(--hot)}
-.form label{display:block;color:var(--muted);font-size:12px;margin-top:12px}.form input{width:100%;background:#1a1a1c;color:#fff;border:1px solid #303034;border-radius:12px;padding:12px;margin-top:6px;font-size:15px}
-.action{width:100%;border:0;border-radius:13px;background:var(--hot);padding:13px;font-weight:800;margin-top:14px}.secondary{background:#242428;color:#fff}
+:root{
+  --bg:#050505;
+  --card:#111113;
+  --line:#29292d;
+  --text:#f5f5f7;
+  --muted:#929298;
+  --orange:#ff8a24;
+  --green:#45c46b;
+  --red:#ff5f56;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+
+main{
+  max-width:430px;
+  margin:auto;
+  min-height:100vh;
+  padding:24px 18px 110px;
+}
+
+h1{
+  font-size:38px;
+  margin:0 0 6px;
+}
+
+h2{
+  font-size:22px;
+  margin:0;
+}
+
+h3{
+  margin:0 0 6px;
+}
+
+p{
+  color:var(--muted);
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:20px;
+  margin:16px 0;
+}
+
+.big{
+  font-size:34px;
+  font-weight:800;
+  margin:8px 0;
+}
+
+.small{
+  font-size:14px;
+  color:var(--muted);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.stat{
+  background:#171719;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+}
+
+.stat strong{
+  display:block;
+  font-size:20px;
+  margin-top:5px;
+}
+
+label{
+  display:block;
+  color:var(--muted);
+  margin:15px 0 7px;
+  font-size:14px;
+}
+
+input,select{
+  width:100%;
+  padding:15px;
+  border-radius:14px;
+  border:1px solid #343438;
+  background:#19191b;
+  color:white;
+  font-size:17px;
+  outline:none;
+}
+
+input:focus,select:focus{
+  border-color:var(--orange);
+}
+
+button{
+  border:0;
+  cursor:pointer;
+}
+
+.primary{
+  width:100%;
+  padding:16px;
+  border-radius:15px;
+  background:var(--orange);
+  color:#111;
+  font-size:17px;
+  font-weight:800;
+  margin-top:18px;
+}
+
+.secondary{
+  padding:11px 15px;
+  border-radius:12px;
+  background:#202024;
+  color:white;
+  border:1px solid #35353a;
+}
+
+.danger{
+  background:#291616;
+  color:#ff7770;
+}
+
+.tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:20px 0;
+}
+
+.tab{
+  padding:14px;
+  border-radius:14px;
+  background:#171719;
+  color:var(--muted);
+  border:1px solid var(--line);
+  font-weight:700;
+}
+
+.tab.active{
+  background:#292015;
+  color:var(--orange);
+  border-color:var(--orange);
+}
+
+.screen{
+  display:none;
+}
+
+.screen.active{
+  display:block;
+}
+
+.account{
+  background:#171719;
+  border:1px solid var(--line);
+  border-radius:17px;
+  padding:16px;
+  margin:10px 0;
+}
+
+.account-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.account-name{
+  font-size:17px;
+  font-weight:700;
+}
+
+.account-value{
+  font-size:20px;
+  font-weight:800;
+  margin-top:6px;
+}
+
+.account-info{
+  color:var(--muted);
+  font-size:14px;
+  margin-top:5px;
+}
+
+.account.paid{
+  opacity:.55;
+}
+
+.account.paid .account-name{
+  text-decoration:line-through;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.actions button{
+  flex:1;
+}
+
+.total-box{
+  border-radius:20px;
+  padding:20px;
+  margin-top:16px;
+  background:#151515;
+  border:1px solid var(--line);
+}
+
+.green{
+  color:var(--green);
+}
+
+.red{
+  color:var(--red);
+}
+
+.orange{
+  color:var(--orange);
+}
+
+footer{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#101012;
+  border-top:1px solid var(--line);
+  padding:10px;
+  z-index:10;
+}
+
+.footer-inner{
+  max-width:430px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.footer-btn{
+  background:transparent;
+  color:var(--muted);
+  padding:10px;
+  font-size:14px;
+}
+
+.footer-btn.active{
+  color:var(--orange);
+}
+
+hr{
+  border:0;
+  border-top:1px solid var(--line);
+  margin:18px 0;
+}
 </style>
 </head>
-<body><main>
-<section id="home" class="screen active"><header><div><div class="ey">Meu dia</div><div class="title">EVOLVE</div></div><div class="avatar">E</div></header>
-<div class="card"><div class="ey">Índice de hoje</div><div class="row"><div><div class="score" id="score">0</div><div class="muted">Comece cadastrando suas atividades.</div></div><div>◌</div></div></div>
-<div class="section"><h2>Prioridades</h2><button class="link" onclick="addTask()">+ cadastrar</button></div><div class="card" id="tasks"><div class="empty">Nenhuma tarefa cadastrada.</div></div>
-<div class="section"><h2>Financeiro</h2><button class="link" onclick="go('finance')">Cadastrar</button></div><div class="card"><div class="ey">Disponível no ciclo</div><div class="big" id="available">R$ 0,00</div><div class="muted">Cadastre sua renda e contas para calcular.</div></div></section>
 
-<section id="goals" class="screen"><header><div><div class="ey">Desenvolvimento</div><div class="title">Metas</div></div></header>
-<div class="section"><h2>Minhas metas</h2><button class="link" onclick="addGoal()">+ cadastrar</button></div><div class="card" id="goals"><div class="empty">Nenhuma meta cadastrada.</div></div></section>
+<body>
 
-<section id="evolution" class="screen"><header><div><div class="ey">Desempenho</div><div class="title">Evolução</div></div></header>
-<div class="card"><div class="metric"><span>🧠 Pessoal</span><b id="p">0%</b></div><div class="metric"><span>💼 Profissional</span><b id="prof">0%</b></div><div class="metric"><span>📚 Estudos</span><b id="study">0%</b></div><div class="metric"><span>🏋️ Treino</span><b id="train">0%</b></div></div>
-<div class="card"><div class="ey">Início</div><div class="big">Hoje</div><div class="muted">O EVOLVE começa zerado.</div></div></section>
+<main>
 
-<section id="finance" class="screen"><header><div><div class="ey">Seu dinheiro</div><div class="title">Financeiro</div></div></header>
-<div class="card"><div class="ey">Recebimento</div><div class="big">5º dia útil</div><div class="muted">Seu salário é considerado no 5º dia útil.</div></div>
-<div class="card form"><h2>Renda mensal</h2>
-<label>Salário da carteira<input id="salary" inputmode="decimal" placeholder="R$ 0,00"></label>
-<label>Periculosidade (%)<input id="risk" inputmode="decimal" placeholder="Ex.: 30"></label>
-<label>Adicional de habilitação<input id="license" inputmode="decimal" placeholder="R$ 0,00"></label>
-<label>Horas extras do mês<input id="overtime" inputmode="decimal" placeholder="R$ 0,00"></label>
-<label>INSS<input id="inss" inputmode="decimal" placeholder="R$ 0,00"></label>
-<label>Plano de saúde<input id="health" inputmode="decimal" placeholder="R$ 0,00"></label>
-<button class="action" onclick="saveFinance()">Salvar</button></div>
-<div class="card"><h2>Resumo</h2><div class="metric"><span>Salário-base</span><b id="fs">R$ 0,00</b></div><div class="metric"><span>Periculosidade</span><b id="fr">R$ 0,00</b></div><div class="metric"><span>Habilitação</span><b id="fl">R$ 0,00</b></div><div class="metric"><span>Horas extras</span><b id="fo">R$ 0,00</b></div><div class="metric"><span>Bruto</span><b class="orange" id="fg">R$ 0,00</b></div><div class="metric"><span>Descontos</span><b id="fd">R$ 0,00</b></div><div class="metric"><span>Líquido estimado</span><b class="green" id="fn">R$ 0,00</b></div></div>
-<div class="section"><h2>Contas do mês</h2><button class="link" onclick="addBill()">+ cadastrar</button></div><div class="card" id="bills"><div class="empty">Nenhuma conta cadastrada.</div></div>
-<div class="card"><div class="ey">Depois das contas</div><div class="big" id="remaining">R$ 0,00</div></div></section>
+<header>
+  <div class="small">MEU DINHEIRO</div>
+  <h1>EVOLVE</h1>
+  <p>Controle financeiro pessoal</p>
+</header>
 
-<section id="more" class="screen"><header><div><div class="ey">Configuração</div><div class="title">Mais</div></div></header>
-<div class="card"><h2>EVOLVE V1</h2><p class="muted">Todos os cadastros podem ser excluídos. Os dados ficam neste dispositivo.</p><button class="action secondary" onclick="resetAll()">Zerar todos os dados</button></div></section>
+<!-- ================= RESUMO ================= -->
+
+<section id="resumo" class="screen active">
+
+  <div class="card">
+    <div class="small">PRÓXIMO PAGAMENTO</div>
+    <div class="big" id="proximoPagamento">--/--/----</div>
+    <p>5º dia útil</p>
+  </div>
+
+  <div class="card">
+    <div class="small">SALÁRIO LÍQUIDO ESTIMADO</div>
+    <div class="big green" id="resumoLiquido">R$ 0,00</div>
+    <p>Após INSS, plano de saúde e horas extras</p>
+  </div>
+
+  <div class="grid">
+    <div class="stat">
+      <div class="small">BRUTO</div>
+      <strong id="resumoBruto">R$ 0,00</strong>
+    </div>
+
+    <div class="stat">
+      <div class="small">INSS</div>
+      <strong id="resumoInss">R$ 0,00</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Contas a pagar</h2>
+
+    <div class="grid">
+      <div class="stat">
+        <div class="small">PENDENTES</div>
+        <strong id="resumoContas">0</strong>
+      </div>
+
+      <div class="stat">
+        <div class="small">TOTAL</div>
+        <strong id="resumoContasValor">R$ 0,00</strong>
+      </div>
+    </div>
+
+    <button class="primary" onclick="abrirContas()">
+      + Cadastrar conta
+    </button>
+  </div>
+
+  <div class="total-box">
+    <div class="small">DISPONÍVEL APÓS CONTAS</div>
+    <div class="big green" id="disponivel">R$ 0,00</div>
+  </div>
+
+</section>
+
+
+<!-- ================= FINANCEIRO ================= -->
+
+<section id="financeiro" class="screen">
+
+  <div class="tabs">
+    <button class="tab active" onclick="mostrarFinanceiro()">
+      Renda
+    </button>
+
+    <button class="tab" onclick="abrirContas()">
+      Contas
+    </button>
+  </div>
+
+  <div class="card">
+
+    <h2>Renda mensal</h2>
+
+    <label>Salário da carteira</label>
+    <input id="salario" type="number" step="0.01" value="2810.74">
+
+    <label>Periculosidade (%)</label>
+    <input id="periculosidade" type="number" step="0.01" value="30">
+
+    <label>Adicional de habilitação</label>
+    <input id="habilitacao" type="number" step="0.01" value="170">
+
+    <label>Horas extras 50%</label>
+    <input id="horasExtras" type="number" step="0.01" value="46">
+
+    <label>Plano de saúde — desconto mensal</label>
+    <input id="plano" type="number" step="0.01" value="0">
+
+    <button class="primary" onclick="salvarFinanceiro()">
+      Salvar e calcular
+    </button>
+
+  </div>
+
+  <div class="card">
+
+    <h2>Resultado</h2>
+
+    <div class="total-box">
+      <div class="small">SALÁRIO BASE</div>
+      <div class="big" id="resultadoSalario">R$ 0,00</div>
+    </div>
+
+    <div class="total-box">
+      <div class="small">PERICULOSIDADE</div>
+      <div class="big" id="resultadoPericulosidade">R$ 0,00</div>
+    </div>
+
+    <div class="total-box">
+      <div class="small">HORAS EXTRAS 50%</div>
+      <div class="big" id="resultadoExtras">R$ 0,00</div>
+    </div>
+
+    <div class="total-box">
+      <div class="small">SALÁRIO BRUTO</div>
+      <div class="big orange" id="resultadoBruto">R$ 0,00</div>
+    </div>
+
+    <div class="total-box">
+      <div class="small">INSS AUTOMÁTICO</div>
+      <div class="big red" id="resultadoInss">R$ 0,00</div>
+    </div>
+
+    <div class="total-box">
+      <div class="small">PLANO DE SAÚDE</div>
+      <div class="big red" id="resultadoPlano">R$ 0,00</div>
+    </div>
+
+    <div class="total-box">
+      <div class="small">SALÁRIO LÍQUIDO</div>
+      <div class="big green" id="resultadoLiquido">R$ 0,00</div>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= CONTAS ================= -->
+
+<section id="contas" class="screen">
+
+  <div class="tabs">
+    <button class="tab" onclick="mostrarFinanceiro()">
+      Renda
+    </button>
+
+    <button class="tab active">
+      Contas
+    </button>
+  </div>
+
+  <div class="card">
+
+    <h2>Nova conta</h2>
+
+    <label>Nome da conta</label>
+    <input id="contaNome" type="text" placeholder="Ex.: Energia elétrica">
+
+    <label>Valor</label>
+    <input id="contaValor" type="number" step="0.01" placeholder="0,00">
+
+    <label>Vencimento</label>
+    <input id="contaVencimento" type="date">
+
+    <label>Categoria</label>
+    <select id="contaCategoria">
+      <option>Moradia</option>
+      <option>Energia</option>
+      <option>Água</option>
+      <option>Internet</option>
+      <option>Telefone</option>
+      <option>Alimentação</option>
+      <option>Transporte</option>
+      <option>Saúde</option>
+      <option>Cartão</option>
+      <option>Empréstimo</option>
+      <option>Outros</option>
+    </select>
+
+    <button class="primary" onclick="adicionarConta()">
+      + Adicionar conta
+    </button>
+
+  </div>
+
+  <div class="card">
+
+    <h2>Minhas contas</h2>
+
+    <div id="listaContas"></div>
+
+    <div id="semContas" class="total-box">
+      <p>Nenhuma conta cadastrada.</p>
+    </div>
+
+  </div>
+
+</section>
+
 </main>
-<nav><button class="active" onclick="go('home',this)"><b>⌂</b>Hoje</button><button onclick="go('goals',this)"><b>◎</b>Metas</button><button onclick="go('evolution',this)"><b>↗</b>Evolução</button><button onclick="go('finance',this)"><b>◉</b>Financeiro</button><button onclick="go('more',this)"><b>☰</b>Mais</button></nav>
+
+
+<footer>
+  <div class="footer-inner">
+
+    <button id="btnResumo" class="footer-btn active"
+      onclick="mostrarResumo()">
+      🏠 Resumo
+    </button>
+
+    <button id="btnFinanceiro" class="footer-btn"
+      onclick="mostrarFinanceiro()">
+      💰 Financeiro
+    </button>
+
+  </div>
+</footer>
+
+
 <script>
-const KEY='evolve-zero-v1';let d=JSON.parse(localStorage.getItem(KEY)||'{"tasks":[],"goals":[],"bills":[],"finance":{"salary":0,"risk":0,"license":0,"overtime":0,"inss":0,"health":0}}');
-const br=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-const num=id=>Number(String(document.getElementById(id).value||'').replace(/\./g,'').replace(',','.'))||0;
-function save(){localStorage.setItem(KEY,JSON.stringify(d))}
-function go(id,btn){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');if(btn){document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}}
-function addTask(){let n=prompt('Nome da tarefa/atividade');if(!n)return;let t=prompt('Horário (opcional)','');d.tasks.push({name:n,time:t||'',done:false});save();render()}
-function toggle(i){d.tasks[i].done=!d.tasks[i].done;save();render()}
-function delTask(i){if(confirm('Excluir esta tarefa?')){d.tasks.splice(i,1);save();render()}}
-function addGoal(){let n=prompt('Nome da meta');if(!n)return;let a=prompt('Área da meta','pessoal')||'pessoal';d.goals.push({name:n,area:a});save();render()}
-function delGoal(i){d.goals.splice(i,1);save();render()}
-function addBill(){let n=prompt('Nome da conta');if(!n)return;let a=Number(String(prompt('Valor','0')).replace(/\./g,'').replace(',','.'))||0;d.bills.push({name:n,amount:a});save();render()}
-function delBill(i){d.bills.splice(i,1);save();render()}
-function saveFinance(){d.finance={salary:num('salary'),risk:num('risk'),license:num('license'),overtime:num('overtime'),inss:num('inss'),health:num('health')};save();render();alert('Dados financeiros salvos.')}
-function render(){let tasks=document.getElementById('tasks'),goals=document.getElementById('goals'),bills=document.getElementById('bills');
-tasks.innerHTML=d.tasks.length?d.tasks.map((x,i)=>`<div class="task"><div class="check ${x.done?'done':''}" onclick="toggle(${i})">${x.done?'✓':''}</div><div class="tasktext" onclick="toggle(${i})"><b>${x.name}</b><div>${x.time||'Sem horário'}</div></div><button class="delete" onclick="delTask(${i})">×</button></div>`).join(''):'<div class="empty">Nenhuma tarefa cadastrada.</div>';
-goals.innerHTML=d.goals.length?d.goals.map((x,i)=>`<div class="task"><div class="tasktext"><b>${x.name}</b><div>${x.area}</div></div><button class="delete" onclick="delGoal(${i})">×</button></div>`).join(''):'<div class="empty">Nenhuma meta cadastrada.</div>';
-bills.innerHTML=d.bills.length?d.bills.map((x,i)=>`<div class="bill"><div class="tasktext"><b>${x.name}</b></div><b>${br(x.amount)}</b><button class="delete" onclick="delBill(${i})">×</button></div>`).join(''):'<div class="empty">Nenhuma conta cadastrada.</div>';
-let f=d.finance,s=f.salary,r=s*f.risk/100,l=f.license,o=f.overtime,g=s+r+l+o,disc=f.inss+f.health,net=Math.max(0,g-disc),total=d.bills.reduce((a,b)=>a+b.amount,0);
-document.getElementById('salary').value=s||'';document.getElementById('risk').value=f.risk||'';document.getElementById('license').value=l||'';document.getElementById('overtime').value=o||'';document.getElementById('inss').value=f.inss||'';document.getElementById('health').value=f.health||'';
-document.getElementById('fs').textContent=br(s);document.getElementById('fr').textContent=br(r);document.getElementById('fl').textContent=br(l);document.getElementById('fo').textContent=br(o);document.getElementById('fg').textContent=br(g);document.getElementById('fd').textContent=br(disc);document.getElementById('fn').textContent=br(net);document.getElementById('remaining').textContent=br(net-total);document.getElementById('available').textContent=br(net-total);
-let pct=d.tasks.length?Math.round(d.tasks.filter(x=>x.done).length/d.tasks.length*100):0;document.getElementById('score').textContent=pct;document.getElementById('p').textContent=pct+'%';document.getElementById('prof').textContent=pct+'%';document.getElementById('study').textContent=pct+'%';document.getElementById('train').textContent=pct+'%'}
-function resetAll(){if(confirm('Apagar tudo e começar do zero?')){localStorage.removeItem(KEY);location.reload()}}
-render();if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');
-</script></body></html>
+
+/* =====================================================
+   CONFIGURAÇÃO
+===================================================== */
+
+const STORAGE_FINANCEIRO = "evolve_financeiro";
+const STORAGE_CONTAS = "evolve_contas";
+
+
+/* =====================================================
+   FORMATAÇÃO
+===================================================== */
+
+function moeda(valor){
+
+  return Number(valor || 0).toLocaleString("pt-BR",{
+    style:"currency",
+    currency:"BRL"
+  });
+
+}
+
+
+/* =====================================================
+   INSS 2026
+===================================================== */
+
+function calcularINSS(salario){
+
+  let base = Math.min(Number(salario || 0),8475.55);
+
+  let inss = 0;
+
+  if(base <= 1621){
+    inss = base * 0.075;
+  }
+
+  else if(base <= 2902.84){
+    inss =
+      1621 * 0.075 +
+      (base - 1621) * 0.09;
+  }
+
+  else if(base <= 4354.27){
+    inss =
+      1621 * 0.075 +
+      (2902.84 - 1621) * 0.09 +
+      (base - 2902.84) * 0.12;
+  }
+
+  else{
+
+    inss =
+      1621 * 0.075 +
+      (2902.84 - 1621) * 0.09 +
+      (4354.27 - 2902.84) * 0.12 +
+      (base - 4354.27) * 0.14;
+
+  }
+
+  return inss;
+
+}
+
+
+/* =====================================================
+   FINANCEIRO
+===================================================== */
+
+function calcularFinanceiro(){
+
+  const salario =
+    Number(document.getElementById("salario").value) || 0;
+
+  const percentual =
+    Number(document.getElementById("periculosidade").value) || 0;
+
+  const habilitacao =
+    Number(document.getElementById("habilitacao").value) || 0;
+
+  const horas =
+    Number(document.getElementById("horasExtras").value) || 0;
+
+  const plano =
+    Number(document.getElementById("plano").value) || 0;
+
+
+  /* Periculosidade */
+
+  const valorPericulosidade =
+    salario * percentual / 100;
+
+
+  /*
+    Hora normal:
+    salário + periculosidade / 220
+
+    Hora extra:
+    hora normal x 1,5
+  */
+
+  const baseHoraExtra =
+    salario + valorPericulosidade;
+
+  const valorHora =
+    baseHoraExtra / 220;
+
+  const valorExtras =
+    valorHora * 1.5 * horas;
+
+
+  /* Salário bruto */
+
+  const bruto =
+    salario +
+    valorPericulosidade +
+    habilitacao +
+    valorExtras;
+
+
+  /* INSS */
+
+  const inss =
+    calcularINSS(bruto);
+
+
+  /* Líquido */
+
+  const liquido =
+    bruto -
+    inss -
+    plano;
+
+
+  return {
+    salario,
+    valorPericulosidade,
+    habilitacao,
+    horas,
+    valorExtras,
+    bruto,
+    inss,
+    plano,
+    liquido
+  };
+
+}
+
+
+function salvarFinanceiro(){
+
+  const dados = calcularFinanceiro();
+
+  localStorage.setItem(
+    STORAGE_FINANCEIRO,
+    JSON.stringify(dados)
+  );
+
+  atualizarTela();
+
+  alert("Dados financeiros salvos!");
+
+}
+
+
+/* =====================================================
+   MOSTRAR RESULTADOS
+===================================================== */
+
+function atualizarFinanceiro(){
+
+  const dadosSalvos =
+    localStorage.getItem(STORAGE_FINANCEIRO);
+
+  if(!dadosSalvos){
+    return;
+  }
+
+  const d =
+    JSON.parse(dadosSalvos);
+
+
+  document.getElementById("salario").value =
+    d.salario;
+
+  document.getElementById("periculosidade").value =
+    d.valorPericulosidade / d.salario * 100 || 0;
+
+  document.getElementById("habilitacao").value =
+    d.habilitacao;
+
+  document.getElementById("horasExtras").value =
+    d.horas;
+
+  document.getElementById("plano").value =
+    d.plano;
+
+
+  document.getElementById("resultadoSalario").innerText =
+    moeda(d.salario);
+
+  document.getElementById("resultadoPericulosidade").innerText =
+    moeda(d.valorPericulosidade);
+
+  document.getElementById("resultadoExtras").innerText =
+    moeda(d.valorExtras);
+
+  document.getElementById("resultadoBruto").innerText =
+    moeda(d.bruto);
+
+  document.getElementById("resultadoInss").innerText =
+    moeda(d.inss);
+
+  document.getElementById("resultadoPlano").innerText =
+    moeda(d.plano);
+
+  document.getElementById("resultadoLiquido").innerText =
+    moeda(d.liquido);
+
+
+  document.getElementById("resumoBruto").innerText =
+    moeda(d.bruto);
+
+  document.getElementById("resumoInss").innerText =
+    moeda(d.inss);
+
+  document.getElementById("resumoLiquido").innerText =
+    moeda(d.liquido);
+
+}
+
+
+/* =====================================================
+   5º DIA ÚTIL
+===================================================== */
+
+function quintoDiaUtil(){
+
+  const hoje = new Date();
+
+  let ano = hoje.getFullYear();
+  let mes = hoje.getMonth();
+
+  /*
+    Para salário, contamos segunda a sábado.
+    Domingo não entra como dia útil.
+  */
+
+  function calcular(ano,mes){
+
+    let contador = 0;
+
+    for(let dia=1; dia<=31; dia++){
+
+      const data =
+        new Date(ano,mes,dia);
+
+      if(data.getMonth() !== mes){
+        break;
+      }
+
+      const semana =
+        data.getDay();
+
+      if(semana !== 0){
+
+        contador++;
+
+        if(contador === 5){
+          return data;
+        }
+
+      }
+
+    }
+
+  }
+
+
+  let pagamento =
+    calcular(ano,mes);
+
+
+  /*
+    Se o 5º dia útil deste mês já passou,
+    calcula o próximo mês.
+  */
+
+  const agora =
+    new Date();
+
+  if(pagamento < agora){
+
+    mes++;
+
+    if(mes > 11){
+      mes=0;
+      ano++;
+    }
+
+    pagamento =
+      calcular(ano,mes);
+
+  }
+
+
+  return pagamento;
+
+}
+
+
+function atualizarPagamento(){
+
+  const data =
+    quintoDiaUtil();
+
+  const texto =
+    data.toLocaleDateString("pt-BR");
+
+  document.getElementById(
+    "proximoPagamento"
+  ).innerText = texto;
+
+}
+
+
+/* =====================================================
+   CONTAS
+===================================================== */
+
+function obterContas(){
+
+  const dados =
+    localStorage.getItem(STORAGE_CONTAS);
+
+  return dados
+    ? JSON.parse(dados)
+    : [];
+
+}
+
+
+function salvarContas(contas){
+
+  localStorage.setItem(
+    STORAGE_CONTAS,
+    JSON.stringify(contas)
+  );
+
+}
+
+
+function adicionarConta(){
+
+  const nome =
+    document.getElementById("contaNome").value.trim();
+
+  const valor =
+    Number(document.getElementById("contaValor").value) || 0;
+
+  const vencimento =
+    document.getElementById("contaVencimento").value;
+
+  const categoria =
+    document.getElementById("contaCategoria").value;
+
+
+  if(!nome){
+
+    alert("Digite o nome da conta.");
+
+    return;
+
+  }
+
+
+  if(valor <= 0){
+
+    alert("Digite um valor válido.");
+
+    return;
+
+  }
+
+
+  if(!vencimento){
+
+    alert("Informe o vencimento.");
+
+    return;
+
+  }
+
+
+  const contas =
+    obterContas();
+
+
+  contas.push({
+
+    id:Date.now(),
+
+    nome,
+
+    valor,
+
+    vencimento,
+
+    categoria,
+
+    paga:false
+
+  });
+
+
+  salvarContas(contas);
+
+
+  document.getElementById("contaNome").value="";
+  document.getElementById("contaValor").value="";
+  document.getElementById("contaVencimento").value="";
+
+
+  atualizarContas();
+  atualizarTela();
+
+
+  alert("Conta cadastrada!");
+
+}
+
+
+function marcarConta(id){
+
+  const contas =
+    obterContas();
+
+  const conta =
+    contas.find(c => c.id === id);
+
+  if(conta){
+
+    conta.paga =
+      !conta.paga;
+
+  }
+
+  salvarContas(contas);
+
+  atualizarContas();
+  atualizarTela();
+
+}
+
+
+function excluirConta(id){
+
+  if(!confirm("Excluir esta conta?")){
+    return;
+  }
+
+  let contas =
+    obterContas();
+
+  contas =
+    contas.filter(c => c.id !== id);
+
+  salvarContas(contas);
+
+  atualizarContas();
+  atualizarTela();
+
+}
+
+
+function formatarData(data){
+
+  if(!data){
+    return "--/--/----";
+  }
+
+  const partes =
+    data.split("-");
+
+  return partes[2] + "/" +
+         partes[1] + "/" +
+         partes[0];
+
+}
+
+
+function atualizarContas(){
+
+  const contas =
+    obterContas();
+
+  const lista =
+    document.getElementById("listaContas");
+
+  const vazio =
+    document.getElementById("semContas");
+
+
+  lista.innerHTML="";
+
+
+  if(contas.length === 0){
+
+    vazio.style.display="block";
+
+    return;
+
+  }
+
+
+  vazio.style.display="none";
+
+
+  contas
+    .sort((a,b) =>
+      a.vencimento.localeCompare(b.vencimento)
+    )
+    .forEach(conta => {
+
+      const div =
+        document.createElement("div");
+
+      div.className =
+        "account" +
+        (conta.paga ? " paid" : "");
+
+
+      div.innerHTML = `
+
+        <div class="account-top">
+
+          <div>
+
+            <div class="account-name">
+              ${escapeHTML(conta.nome)}
+            </div>
+
+            <div class="account-info">
+              ${escapeHTML(conta.categoria)}
+              • Vencimento:
+              ${formatarData(conta.vencimento)}
+            </div>
+
+          </div>
+
+          <div class="account-value">
+            ${moeda(conta.valor)}
+          </div>
+
+        </div>
+
+        <div class="actions">
+
+          <button
+            class="secondary"
+            onclick="marcarConta(${conta.id})">
+
+            ${conta.paga ? "Desmarcar" : "Marcar paga"}
+
+          </button>
+
+          <button
+            class="secondary danger"
+            onclick="excluirConta(${conta.id})">
+
+            Excluir
+
+          </button>
+
+        </div>
+
+      `;
+
+      lista.appendChild(div);
+
+    });
+
+}
+
+
+function escapeHTML(text){
+
+  return text
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+/* =====================================================
+   RESUMO
+===================================================== */
+
+function atualizarResumoContas(){
+
+  const contas =
+    obterContas();
+
+
+  const pendentes =
+    contas.filter(c => !c.paga);
+
+
+  const quantidade =
+    pendentes.length;
+
+
+  const total =
+    pendentes.reduce(
+      (soma,conta) =>
+        soma + Number(conta.valor),
+      0
+    );
+
+
+  document.getElementById(
+    "resumoContas"
+  ).innerText = quantidade;
+
+
+  document.getElementById(
+    "resumoContasValor"
+  ).innerText = moeda(total);
+
+
+  const dadosSalvos =
+    localStorage.getItem(STORAGE_FINANCEIRO);
+
+
+  if(dadosSalvos){
+
+    const d =
+      JSON.parse(dadosSalvos);
+
+    const disponivel =
+      d.liquido - total;
+
+    const elemento =
+      document.getElementById("disponivel");
+
+    elemento.innerText =
+      moeda(disponivel);
+
+    elemento.className =
+      disponivel >= 0
+      ? "big green"
+      : "big red";
+
+  }
+
+}
+
+
+/* =====================================================
+   NAVEGAÇÃO
+===================================================== */
+
+function esconderTudo(){
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(s =>
+      s.classList.remove("active")
+    );
+
+}
+
+
+function atualizarBotoes(id){
+
+  document
+    .querySelectorAll(".footer-btn")
+    .forEach(b =>
+      b.classList.remove("active")
+    );
+
+  if(id){
+
+    document
+      .getElementById(id)
+      .classList.add("active");
+
+  }
+
+}
+
+
+function mostrarResumo(){
+
+  esconderTudo();
+
+  document
+    .getElementById("resumo")
+    .classList.add("active");
+
+  atualizarBotoes("btnResumo");
+
+  atualizarTela();
+
+}
+
+
+function mostrarFinanceiro(){
+
+  esconderTudo();
+
+  document
+    .getElementById("financeiro")
+    .classList.add("active");
+
+  atualizarBotoes("btnFinanceiro");
+
+  atualizarFinanceiro();
+
+}
+
+
+function abrirContas(){
+
+  esconderTudo();
+
+  document
+    .getElementById("contas")
+    .classList.add("active");
+
+  atualizarBotoes("btnFinanceiro");
+
+  atualizarContas();
+
+}
+
+
+/* =====================================================
+   ATUALIZAÇÃO GERAL
+===================================================== */
+
+function atualizarTela(){
+
+  atualizarFinanceiro();
+
+  atualizarPagamento();
+
+  atualizarContas();
+
+  atualizarResumoContas();
+
+}
+
+
+/* =====================================================
+   INÍCIO
+===================================================== */
+
+atualizarTela();
+
+</script>
+
+</body>
+</html>

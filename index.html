@@ -576,9 +576,6 @@ function calcularINSS(salario){
 
 
 /* =====================================================
-   FINANCEIRO
-===================================================== */
-
 function calcularFinanceiro(){
 
   const salario =
@@ -597,32 +594,27 @@ function calcularFinanceiro(){
     Number(document.getElementById("plano").value) || 0;
 
 
-  /* Periculosidade */
-
+  // PERICULOSIDADE
   const valorPericulosidade =
-    salario * percentual / 100;
+    salario * (percentual / 100);
 
 
-  /*
-    Hora normal:
-    salário + periculosidade / 220
-
-    Hora extra:
-    hora normal x 1,5
-  */
-
-  const baseHoraExtra =
+  // HORA EXTRA 50%
+  // Divisor padrão: 220 horas mensais
+  const baseHora =
     salario + valorPericulosidade;
 
   const valorHora =
-    baseHoraExtra / 220;
+    baseHora / 220;
+
+  const valorHoraExtra =
+    valorHora * 1.5;
 
   const valorExtras =
-    valorHora * 1.5 * horas;
+    valorHoraExtra * horas;
 
 
-  /* Salário bruto */
-
+  // SALÁRIO BRUTO
   const bruto =
     salario +
     valorPericulosidade +
@@ -630,14 +622,12 @@ function calcularFinanceiro(){
     valorExtras;
 
 
-  /* INSS */
-
+  // INSS AUTOMÁTICO
   const inss =
     calcularINSS(bruto);
 
 
-  /* Líquido */
-
+  // SALÁRIO LÍQUIDO
   const liquido =
     bruto -
     inss -
@@ -645,15 +635,15 @@ function calcularFinanceiro(){
 
 
   return {
-    salario,
-    valorPericulosidade,
-    habilitacao,
-    horas,
-    valorExtras,
-    bruto,
-    inss,
-    plano,
-    liquido
+    salario: salario,
+    valorPericulosidade: valorPericulosidade,
+    habilitacao: habilitacao,
+    horas: horas,
+    valorExtras: valorExtras,
+    bruto: bruto,
+    inss: inss,
+    plano: plano,
+    liquido: liquido
   };
 
 }

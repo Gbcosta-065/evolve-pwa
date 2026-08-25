@@ -56,6 +56,21 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .modal.open{display:flex}.modal-card{width:100%;max-width:430px;margin:auto auto 0;background:#111113;border:1px solid var(--line);border-radius:24px 24px 0 0;padding:22px;max-height:90vh;overflow:auto}
 .close{float:right;background:#222;color:#fff;border-radius:10px;padding:8px 12px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.assistant{background:linear-gradient(145deg,#151515,#101012);border:1px solid #343438}
+.assistant-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.ai-dot{width:11px;height:11px;border-radius:50%;background:var(--green);box-shadow:0 0 12px rgba(69,196,107,.6);display:inline-block;margin-right:7px}
+.chat{margin-top:16px;display:flex;flex-direction:column;gap:10px;max-height:360px;overflow:auto;padding-right:2px}
+.msg{padding:13px 14px;border-radius:16px;line-height:1.45;font-size:14px;white-space:pre-wrap}
+.msg.ai{background:#1b1b1e;border:1px solid var(--line);align-self:flex-start;max-width:92%}
+.msg.user{background:#302317;color:#fff;align-self:flex-end;max-width:92%;border:1px solid #4a3420}
+.suggestions{display:flex;gap:8px;overflow:auto;margin-top:12px;padding-bottom:2px}
+.suggestions button{white-space:nowrap}
+.chat-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
+.chat-row input{min-width:0}
+.ai-note{font-size:12px;color:var(--muted);margin-top:10px}
+.goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.goal-card{background:#151517;border:1px solid var(--line);border-radius:16px;padding:13px}
 </style>
 </head>
 <body>
@@ -159,6 +174,61 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
     <div class="total-box"><div class="small">SALÁRIO LÍQUIDO</div><div class="big green" id="resultadoLiquido">R$ 0,00</div></div>
   </div>
 
+
+  <div class="card">
+    <h2>Planejamento inteligente</h2>
+    <p>O EVOLVE usa o <strong>saldo depois das contas</strong> do mês do pagamento como base para dividir o dinheiro entre lazer, reserva de emergência e investimentos.</p>
+    <label>Reserva de emergência atual</label>
+    <input id="reservaAtual" type="number" step="0.01" min="0" value="0" placeholder="0,00">
+    <div class="small">Início do planejamento: R$ 0,00 de reserva. O EVOLVE vai priorizar a formação da reserva antes de aumentar o peso dos investimentos.</div>
+    <label>Gastos essenciais mensais</label>
+    <input id="gastosEssenciais" type="number" step="0.01" min="0" placeholder="0,00">
+    <div class="goal-grid">
+      <div class="goal-card"><label style="margin-top:0">Estudos / mês</label><input id="estudosMensal" type="number" step="0.01" min="0" placeholder="0,00"></div>
+      <div class="goal-card"><label style="margin-top:0">Academia / mês</label><input id="academiaMensal" type="number" step="0.01" min="0" placeholder="0,00"></div>
+    </div>
+    <div class="small" style="margin-top:10px">Esses valores são tratados como objetivos de desenvolvimento pessoal. A assistente vai considerar esses compromissos antes de recomendar novos gastos.</div>
+    <label>Meta da reserva — meses de gastos essenciais</label>
+    <select id="metaReserva">
+      <option value="3">3 meses</option><option value="6" selected>6 meses</option><option value="9">9 meses</option><option value="12">12 meses</option>
+    </select>
+    <div class="recommendation" id="recomendacaoInvestimento">Preencha os dados para calcular a recomendação.</div>
+    <hr>
+    <div class="small">DINHEIRO DISPONÍVEL PARA DISTRIBUIR</div>
+    <div class="big green" id="planejamentoBase">R$ 0,00</div>
+    <div class="alloc-grid">
+      <div class="alloc"><div><div class="small">LUXO / DIA A DIA</div><strong class="orange" id="luxoPct">0%</strong></div><div class="alloc-value" id="luxoValor">R$ 0,00</div></div>
+      <div class="alloc"><div><div class="small">RESERVA</div><strong class="blue" id="reservaPct">0%</strong></div><div class="alloc-value" id="reservaValor">R$ 0,00</div></div>
+      <div class="alloc"><div><div class="small">INVESTIMENTO</div><strong class="green" id="investPct">0%</strong></div><div class="alloc-value" id="investValor">R$ 0,00</div></div>
+    </div>
+    <div class="total-box">
+      <div class="small">LIMITE DIÁRIO PARA LUXO</div>
+      <div class="big orange" id="luxoDiario">R$ 0,00/dia</div>
+      <div class="small" id="diasPlanejamento">Considerando o mês do pagamento.</div>
+    </div>
+  </div>
+
+  <div class="card assistant">
+    <div class="assistant-head">
+      <div><h2>🤖 Assistente financeiro</h2><p style="margin-bottom:0"><span class="ai-dot"></span>Pronta para analisar suas decisões com base nos números do EVOLVE.</p></div>
+    </div>
+    <div class="chat" id="chatFinanceiro">
+      <div class="msg ai">Olá! Eu sou sua assistente financeira do EVOLVE. Posso analisar compras, estudos, academia, lazer, reserva e investimentos antes de você gastar.
+
+Pode me perguntar, por exemplo: “Posso gastar R$ 200 com uma compra?”, “Quanto posso gastar por dia?” ou “Quanto devo investir este mês?”</div>
+    </div>
+    <div class="suggestions">
+      <button class="secondary" onclick="perguntarIA('Quanto posso gastar por dia?')">Gasto diário</button>
+      <button class="secondary" onclick="perguntarIA('Quanto devo investir este mês?')">Investimento</button>
+      <button class="secondary" onclick="perguntarIA('Posso pagar academia e começar a estudar?')">Estudo + academia</button>
+    </div>
+    <div class="chat-row">
+      <input id="perguntaIA" type="text" placeholder="Converse com sua assistente..." onkeydown="if(event.key==='Enter')enviarPerguntaIA()">
+      <button class="primary" style="width:auto;margin-top:0;padding:14px 16px" onclick="enviarPerguntaIA()">Enviar</button>
+    </div>
+    <div class="ai-note">A assistente é local e funciona sem enviar seus dados financeiros para um servidor. Ela usa os dados salvos neste aparelho e regras de planejamento. Uma IA conversacional online poderá ser conectada depois com segurança por um backend.</div>
+  </div>
+
   <div class="card">
     <h2>Histórico mensal</h2>
     <div id="historicoMeses"></div>
@@ -254,7 +324,7 @@ function moedaNumero(v){return Number(v||0);}
 function escapeHTML(t){return String(t??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
 
 function configPadrao(){
-  return {salario:2810.74,periculosidade:30,habilitacao:170,plano:0};
+  return {salario:2810.74,periculosidade:30,habilitacao:170,plano:0,reservaAtual:0,gastosEssenciais:0,estudosMensal:0,academiaMensal:0,metaReserva:6};
 }
 function obterConfig(){
   const raw=localStorage.getItem(STORAGE_CONFIG);
@@ -266,7 +336,12 @@ function salvarConfiguracao(){
     salario:moedaNumero(document.getElementById("salario").value),
     periculosidade:moedaNumero(document.getElementById("periculosidade").value),
     habilitacao:moedaNumero(document.getElementById("habilitacao").value),
-    plano:moedaNumero(document.getElementById("plano").value)
+    plano:moedaNumero(document.getElementById("plano").value),
+    reservaAtual:moedaNumero(document.getElementById("reservaAtual").value),
+    gastosEssenciais:moedaNumero(document.getElementById("gastosEssenciais").value),
+    estudosMensal:moedaNumero(document.getElementById("estudosMensal").value),
+    academiaMensal:moedaNumero(document.getElementById("academiaMensal").value),
+    metaReserva:Math.max(3,Math.min(12,Number(document.getElementById("metaReserva").value)||6))
   };
   localStorage.setItem(STORAGE_CONFIG,JSON.stringify(c));
   atualizarTudo();
@@ -299,7 +374,7 @@ function calcularRenda(){
 function carregarCampos(){
   const c=obterConfig(),m=obterMes();
   salario.value=c.salario;periculosidade.value=c.periculosidade;habilitacao.value=c.habilitacao;plano.value=c.plano;
-  horas50.value=m.horas50||0;horas100.value=m.horas100||0;
+  horas50.value=m.horas50||0;horas100.value=m.horas100||0;reservaAtual.value=c.reservaAtual||0;gastosEssenciais.value=c.gastosEssenciais||0;estudosMensal.value=c.estudosMensal||0;academiaMensal.value=c.academiaMensal||0;metaReserva.value=c.metaReserva||6;
 }
 function salvarMes(){
   garantirMes();
@@ -465,6 +540,83 @@ function atualizarContas(){
 }
 function formatarData(d){if(!d)return"--/--/----";const [y,m,day]=d.split("-");return day+"/"+m+"/"+y;}
 
+function calcularPlanejamento(){
+  const r=calcularRenda();
+  const chavePagamento=mesDoPagamento(mesSelecionado);
+  const t=totaisContas(chavePagamento);
+  const base=Math.max(0,r.liquido-t.pendente);
+  const c=obterConfig();
+  const essenciais=c.gastosEssenciais>0?c.gastosEssenciais:t.pendente;
+  const mesesMeta=Number(c.metaReserva)||6;
+  const meta=Math.max(0,essenciais*mesesMeta);
+  const reservaAtual=Math.max(0,Number(c.reservaAtual)||0);
+  const progresso=meta>0?reservaAtual/meta:0;
+  let luxo=0.35,reserva=0.30,invest=0.35,estrategia="Equilíbrio: a reserva está em construção.";
+  if(reservaAtual<=0){luxo=0.30;reserva=0.45;invest=0.25;estrategia="Você está começando do zero. O EVOLVE destina 45% para construir a reserva de emergência, mantém 30% para luxo/dia a dia e 25% para investimentos.";}
+  else if(progresso<0.5){luxo=0.30;reserva=0.45;invest=0.25;estrategia="A prioridade é acelerar a reserva de emergência antes de aumentar os investimentos.";}
+  else if(progresso<1){luxo=0.35;reserva=0.30;invest=0.35;estrategia="A reserva está avançando; o EVOLVE mantém um equilíbrio entre segurança, lazer e crescimento.";}
+  else{luxo=0.40;reserva=0.10;invest=0.50;estrategia="Meta da reserva atingida; o EVOLVE aumenta o foco em investimentos e mantém 40% para lazer.";}
+  if(base<=0){luxo=reserva=invest=0;estrategia="Não há saldo disponível depois das contas deste mês.";}
+  const luxoV=base*luxo,reservaV=base*reserva,investV=base*invest;
+  const dias=new Date(partesMes(chavePagamento).ano,partesMes(chavePagamento).mes,0).getDate();
+  planejamentoBase.textContent=moeda(base);luxoPct.textContent=Math.round(luxo*100)+"%";reservaPct.textContent=Math.round(reserva*100)+"%";investPct.textContent=Math.round(invest*100)+"%";
+  luxoValor.textContent=moeda(luxoV);reservaValor.textContent=moeda(reservaV);investValor.textContent=moeda(investV);luxoDiario.textContent=moeda(luxoV/dias)+"/dia";
+  diasPlanejamento.textContent="Limite diário de luxo considerando "+dias+" dias de "+nomeMes(chavePagamento)+".";
+  recomendacaoInvestimento.innerHTML='<strong>Recomendação: '+Math.round(luxo*100)+'% luxo • '+Math.round(reserva*100)+'% reserva • '+Math.round(invest*100)+'% investimentos.</strong><br>'+estrategia+(meta>0?'<br>Meta da reserva: '+moeda(meta)+' ('+mesesMeta+' meses). Atual: '+moeda(reservaAtual)+' — '+Math.min(100,Math.round(progresso*100))+'% da meta.':'');
+}
+
+function contextoFinanceiroIA(){
+  const r=calcularRenda();
+  const chavePagamento=mesDoPagamento(mesSelecionado);
+  const t=totaisContas(chavePagamento);
+  const base=Math.max(0,r.liquido-t.pendente);
+  const c=obterConfig();
+  const essenciais=c.gastosEssenciais>0?c.gastosEssenciais:t.pendente;
+  const meta=essenciais*(Number(c.metaReserva)||6);
+  const reservaAtual=Math.max(0,Number(c.reservaAtual)||0);
+  const progresso=meta>0?reservaAtual/meta:0;
+  let luxo=0.30,reserva=0.45,invest=0.25;
+  if(reservaAtual>0 && progresso>=0.5 && progresso<1){luxo=.35;reserva=.30;invest=.35;}
+  if(meta>0 && progresso>=1){luxo=.40;reserva=.10;invest=.50;}
+  if(base<=0){luxo=reserva=invest=0;}
+  const luxoV=base*luxo,reservaV=base*reserva,investV=base*invest;
+  const dias=new Date(partesMes(chavePagamento).ano,partesMes(chavePagamento).mes,0).getDate();
+  return {r,t,base,c,essenciais,meta,reservaAtual,progresso,luxo,reserva,invest,luxoV,reservaV,investV,luxoDiario:luxoV/dias,dias,chavePagamento};
+}
+function adicionarMensagemIA(texto,tipo){
+  const chat=document.getElementById('chatFinanceiro');
+  const div=document.createElement('div');div.className='msg '+tipo;div.textContent=texto;chat.appendChild(div);chat.scrollTop=chat.scrollHeight;
+}
+function responderIA(pergunta){
+  const q=String(pergunta||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const x=contextoFinanceiroIA(),c=x.c;
+  if(x.base<=0) return 'Hoje eu não liberaria um novo gasto com o dinheiro planejável: o saldo depois das contas está em '+moeda(x.base)+'. Primeiro precisamos fechar as contas. Se quiser, me diga qual gasto você está pensando e eu avalio o impacto.';
+  if(q.includes('quanto posso gastar') || q.includes('gasto diario') || q.includes('por dia')) return 'Seu limite inteligente para luxo/dia a dia neste ciclo é '+moeda(x.luxoV)+' no total, ou cerca de '+moeda(x.luxoDiario)+' por dia. A recomendação atual é '+Math.round(x.luxo*100)+'% luxo, '+Math.round(x.reserva*100)+'% reserva e '+Math.round(x.invest*100)+'% investimentos.';
+  if(q.includes('invest') || q.includes('aplicar')) return 'Minha recomendação para este ciclo é separar '+moeda(x.investV)+' ('+Math.round(x.invest*100)+'%) para investimentos. Como sua reserva ainda está em '+moeda(x.reservaAtual)+' de uma meta de '+moeda(x.meta)+', eu manteria a prioridade na segurança e não reduziria a reserva para aumentar investimentos.';
+  if(q.includes('reserva') || q.includes('emergencia')) return 'Sua reserva começa em '+moeda(x.reservaAtual)+'. A meta configurada é '+moeda(x.meta)+' ('+(c.metaReserva||6)+' meses de gastos essenciais). Neste ciclo, eu destinaria '+moeda(x.reservaV)+' ('+Math.round(x.reserva*100)+'%) para a reserva. Até ela ficar forte, evite usar essa quantia para lazer.';
+  if(q.includes('academia') || q.includes('estud') || q.includes('curso')){
+    const mensal=(Number(c.academiaMensal)||0)+(Number(c.estudosMensal)||0);
+    const livre=x.luxoV-mensal;
+    return 'Academia e estudos podem entrar no plano, porque são investimentos em você. Hoje você informou '+moeda(c.academiaMensal||0)+' para academia e '+moeda(c.estudosMensal||0)+' para estudos, totalizando '+moeda(mensal)+' por mês. Se esses valores forem pagos com o orçamento de luxo, sobrariam cerca de '+moeda(Math.max(0,livre))+' para outros gastos do dia a dia. Se a academia/curso for essencial para sua rotina, podemos tratá-los como uma categoria própria e ajustar a estratégia.';
+  }
+  const m=q.match(/(?:gastar|comprar|pagar|custa|custa[ ]?r?\$?)[^0-9]{0,20}(?:r\$\s*)?([0-9]{1,6}(?:[.,][0-9]{1,2})?)/);
+  if(m){
+    const valor=Number(m[1].replace(/\./g,'').replace(',','.'));
+    if(!Number.isFinite(valor)) return 'Não consegui identificar o valor. Me diga, por exemplo: “Posso gastar R$ 200 com isso?”';
+    const percentual=x.luxoV>0?(valor/x.luxoV)*100:100;
+    if(valor<=x.luxoV) return 'Sim, esse gasto de '+moeda(valor)+' cabe dentro do seu orçamento de luxo deste ciclo. Ele consumiria aproximadamente '+Math.round(percentual)+'% do seu dinheiro de luxo e ainda preservaria a reserva e os investimentos planejados. Eu só faria a compra se ela não criar uma conta recorrente que comprometa os próximos meses.';
+    return 'Eu evitaria esse gasto de '+moeda(valor)+' agora. Seu orçamento de luxo é '+moeda(x.luxoV)+' e a compra ultrapassa esse limite em '+moeda(valor-x.luxoV)+'. Se for importante, podemos simular reduzir temporariamente o luxo ou adiar a compra, mas eu não mexeria na reserva de emergência.';
+  }
+  if(q.includes('saldo') || q.includes('disponivel') || q.includes('dinheiro')) return 'Depois das contas do mês do pagamento, seu dinheiro disponível para planejamento é '+moeda(x.base)+'. A divisão recomendada é '+moeda(x.luxoV)+' para luxo, '+moeda(x.reservaV)+' para reserva e '+moeda(x.investV)+' para investimentos.';
+  return 'Posso te ajudar a decidir antes de gastar. Tente perguntar: “Posso gastar R$ 200?”, “Quanto posso gastar por dia?”, “Quanto devo investir?”, “Como está minha reserva?” ou “Posso pagar academia e começar a estudar?”';
+}
+function enviarPerguntaIA(){
+  const input=document.getElementById('perguntaIA'),p=input.value.trim();if(!p)return;
+  adicionarMensagemIA(p,'user');input.value='';
+  setTimeout(()=>adicionarMensagemIA(responderIA(p),'ai'),120);
+}
+function perguntarIA(p){document.getElementById('perguntaIA').value=p;enviarPerguntaIA();}
+
 function atualizarResumo(){
   const r=calcularRenda();
   // A renda da competência é recebida no mês seguinte e será usada para pagar as contas desse mês.
@@ -500,7 +652,7 @@ function atualizarCabecalhos(){
   rotuloHoras.textContent=nome;rotuloContasMes.textContent=nome;competenciaBadge.textContent=String(p.mes).padStart(2,"0")+"/"+p.ano;
 }
 function atualizarTudo(){
-  garantirMes();carregarCampos();atualizarCabecalhos();atualizarPagamento();atualizarResultado();atualizarHistorico();atualizarContas();atualizarResumo();
+  garantirMes();carregarCampos();atualizarCabecalhos();atualizarPagamento();atualizarResultado();atualizarHistorico();atualizarContas();atualizarResumo();calcularPlanejamento();
 }
 function mudarMes(delta){
   const p=partesMes(mesSelecionado);let total=p.ano*12+(p.mes-1)+delta;

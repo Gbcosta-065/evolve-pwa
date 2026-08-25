@@ -71,6 +71,10 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 .ai-note{font-size:12px;color:var(--muted);margin-top:10px}
 .goal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .goal-card{background:#151517;border:1px solid var(--line);border-radius:16px;padding:13px}
+
+.assistant-response{
+  line-height:1.55;
+}
 </style>
 </head>
 <body>
@@ -122,6 +126,86 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 </section>
 
 <section id="financeiro" class="screen">
+  <div class="card">
+    <h2>📊 Planejamento inteligente</h2>
+    <p>Organize o dinheiro que sobra depois das contas.</p>
+
+    <div class="grid">
+      <div class="stat">
+        <div class="small">DISPONÍVEL</div>
+        <strong id="planejamentoDisponivel">R$ 0,00</strong>
+      </div>
+      <div class="stat">
+        <div class="small">LIMITE DIÁRIO</div>
+        <strong id="planejamentoDiario">R$ 0,00</strong>
+      </div>
+    </div>
+
+    <label>Reserva de emergência atual</label>
+    <input id="reservaAtual" type="number" step="0.01" min="0" value="0">
+
+    <label>Meses de gastos essenciais para a meta</label>
+    <select id="mesesReserva">
+      <option value="3">3 meses</option>
+      <option value="6" selected>6 meses</option>
+      <option value="9">9 meses</option>
+      <option value="12">12 meses</option>
+    </select>
+
+    <label>Estudos por mês</label>
+    <input id="estudosMensal" type="number" step="0.01" min="0" value="0">
+
+    <label>Academia por mês</label>
+    <input id="academiaMensal" type="number" step="0.01" min="0" value="0">
+
+    <button class="primary" onclick="calcularPlanejamento()">Atualizar planejamento</button>
+
+    <div class="total-box">
+      <div class="small">META DA RESERVA</div>
+      <div class="big" id="metaReserva">R$ 0,00</div>
+      <div class="small" id="progressoReserva">Começando do zero</div>
+    </div>
+
+    <div class="grid">
+      <div class="stat">
+        <div class="small">LUXO / DIA A DIA</div>
+        <strong id="valorLuxo">R$ 0,00</strong>
+        <div class="small" id="percentualLuxo">30%</div>
+      </div>
+      <div class="stat">
+        <div class="small">RESERVA</div>
+        <strong id="valorReserva">R$ 0,00</strong>
+        <div class="small" id="percentualReserva">45%</div>
+      </div>
+    </div>
+
+    <div class="stat" style="margin-top:10px">
+      <div class="small">INVESTIMENTOS</div>
+      <strong id="valorInvestimentos">R$ 0,00</strong>
+      <div class="small" id="percentualInvestimentos">25%</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🤖 Assistente Financeiro</h2>
+    <p>Converse com o seu planejamento financeiro.</p>
+
+    <label>O que você quer saber?</label>
+    <input id="perguntaFinanceira"
+      type="text"
+      placeholder="Ex.: Posso gastar R$ 200 hoje?">
+
+    <button class="primary" onclick="responderAssistente()">
+      Perguntar
+    </button>
+
+    <div class="total-box" id="respostaAssistente">
+      <div class="small">ASSISTENTE</div>
+      <p>Faça uma pergunta para analisar seu dinheiro disponível, luxo, reserva, investimentos, estudos ou academia.</p>
+    </div>
+  </div>
+
+
   <div class="monthbar">
     <button onclick="mudarMes(-1)">‹</button>
     <div class="monthtitle" id="financeiroMes">AGOSTO/2026</div>
@@ -674,6 +758,145 @@ function criarContasPadrao(){
   salvarContas(contas);localStorage.setItem(STORAGE_SEED,"1");
 }
 criarContasPadrao();garantirMes();atualizarTudo();
+
+/* =====================================================
+   PLANEJAMENTO INTELIGENTE + ASSISTENTE
+===================================================== */
+
+function valorContasDoMesSeguinte(){
+  const contas = obterContas();
+  const chaveAtual = mesSelecionado || chaveMes(new Date().getFullYear(), new Date().getMonth()+1);
+  const p = partesMes(chaveAtual);
+  let ano = p.ano, mes = p.mes + 1;
+  if(mes === 13){ mes = 1; ano++; }
+  const proxima = `${ano}-${String(mes).padStart(2,"0")}`;
+  return contas
+    .filter(c => !c.paga && String(c.vencimento || "").startsWith(proxima))
+    .reduce((s,c) => s + Number(c.valor || 0), 0);
+}
+
+function obterDisponivelPlanejamento(){
+  const d = calcularFinanceiroDoMes(mesSelecionado || chaveMes(new Date().getFullYear(), new Date().getMonth()+1));
+  return Math.max(0, Number(d.liquido || 0) - valorContasDoMesSeguinte());
+}
+
+function calcularPlanejamento(){
+  const disponivel = obterDisponivelPlanejamento();
+  const reservaAtual = Math.max(0, Number(document.getElementById("reservaAtual").value) || 0);
+  const meses = Number(document.getElementById("mesesReserva").value) || 6;
+  const estudos = Math.max(0, Number(document.getElementById("estudosMensal").value) || 0);
+  const academia = Math.max(0, Number(document.getElementById("academiaMensal").value) || 0);
+
+  // Gastos planejados entram antes da divisão do dinheiro livre.
+  const objetivos = Math.min(disponivel, estudos + academia);
+  const livre = Math.max(0, disponivel - objetivos);
+
+  // Reserva-alvo: seis meses (por padrão) dos gastos essenciais já conhecidos.
+  const contas = obterContas();
+  const gastosEssenciais = contas
+    .filter(c => !c.paga)
+    .reduce((s,c) => s + Number(c.valor || 0), 0);
+  const baseEssencial = Math.max(gastosEssenciais, estudos + academia);
+  const meta = baseEssencial * meses;
+  const progresso = meta > 0 ? Math.min(100, (reservaAtual / meta) * 100) : 0;
+
+  let pLuxo=30, pReserva=45, pInvest=25;
+  if(progresso >= 100){
+    pLuxo=40; pReserva=10; pInvest=50;
+  }else if(progresso >= 50){
+    pLuxo=35; pReserva=30; pInvest=35;
+  }
+
+  const luxo = livre * pLuxo / 100;
+  const reserva = livre * pReserva / 100;
+  const investimentos = livre * pInvest / 100;
+
+  document.getElementById("planejamentoDisponivel").innerText = moeda(disponivel);
+  document.getElementById("planejamentoDiario").innerText = moeda(luxo / 30);
+  document.getElementById("metaReserva").innerText = moeda(meta);
+  document.getElementById("progressoReserva").innerText =
+    meta > 0 ? `Reserva atual: ${moeda(reservaAtual)} — ${progresso.toFixed(0)}% da meta` : "Defina suas contas para calcular a meta.";
+  document.getElementById("valorLuxo").innerText = moeda(luxo);
+  document.getElementById("percentualLuxo").innerText = `${pLuxo}%`;
+  document.getElementById("valorReserva").innerText = moeda(reserva);
+  document.getElementById("percentualReserva").innerText = `${pReserva}%`;
+  document.getElementById("valorInvestimentos").innerText = moeda(investimentos);
+  document.getElementById("percentualInvestimentos").innerText = `${pInvest}%`;
+
+  localStorage.setItem("evolve_planejamento", JSON.stringify({
+    reservaAtual, meses, estudos, academia
+  }));
+}
+
+function responderAssistente(){
+  const pergunta = (document.getElementById("perguntaFinanceira").value || "").trim();
+  const box = document.getElementById("respostaAssistente");
+
+  if(!pergunta){
+    box.innerHTML = '<div class="small">ASSISTENTE</div><p>Digite uma pergunta primeiro.</p>';
+    return;
+  }
+
+  calcularPlanejamento();
+
+  const disponivel = obterDisponivelPlanejamento();
+  const luxo = Number((document.getElementById("valorLuxo").innerText || "").replace(/[^\d,-]/g,"").replace(/\./g,"").replace(",", ".")) || 0;
+  const diario = Number((document.getElementById("planejamentoDiario").innerText || "").replace(/[^\d,-]/g,"").replace(/\./g,"").replace(",", ".")) || 0;
+  const reserva = document.getElementById("valorReserva").innerText;
+  const investimentos = document.getElementById("valorInvestimentos").innerText;
+  const estudos = Number(document.getElementById("estudosMensal").value) || 0;
+  const academia = Number(document.getElementById("academiaMensal").value) || 0;
+
+  const match = pergunta.match(/r?\$?\s*([\d\.]+(?:,\d{1,2})?)/i);
+  const valorPerguntado = match ? Number(match[1].replace(/\./g,"").replace(",", ".")) : null;
+
+  let resposta = "";
+
+  if(/academia/i.test(pergunta)){
+    resposta = academia > 0
+      ? `A academia está planejada em ${moeda(academia)} por mês. Ela deve ser tratada como um objetivo fixo antes de dividir o restante entre luxo, reserva e investimentos.`
+      : "Você ainda não definiu o valor mensal da academia. Cadastre esse valor no planejamento para eu avaliar se ele cabe no orçamento.";
+  } else if(/estud|curso|faculdade/i.test(pergunta)){
+    resposta = estudos > 0
+      ? `Seu orçamento considera ${moeda(estudos)} por mês para estudos. Isso preserva o objetivo de crescimento pessoal antes da divisão do dinheiro livre.`
+      : "Você ainda não definiu o custo mensal dos estudos. Cadastre esse valor no planejamento para eu avaliar o impacto.";
+  } else if(/invest/i.test(pergunta)){
+    resposta = `Pelo planejamento atual, a parcela recomendada para investimentos é ${investimentos}. A prioridade muda conforme sua reserva de emergência cresce.`;
+  } else if(/reserva|emergência/i.test(pergunta)){
+    resposta = `A recomendação atual para a reserva é ${reserva}. Como você está começando do zero, o EVOLVE prioriza a formação da reserva antes de aumentar a parcela de investimentos.`;
+  } else if(/diário|dia|gastar|luxo/i.test(pergunta)){
+    resposta = `Seu limite de luxo/dia a dia está em aproximadamente ${moeda(diario)} por dia. O orçamento disponível para essa categoria é ${moeda(luxo)}.`;
+  } else if(valorPerguntado !== null){
+    resposta = valorPerguntado <= luxo
+      ? `Pelos números atuais, ${moeda(valorPerguntado)} cabe dentro do orçamento de luxo de ${moeda(luxo)}. Ainda assim, confirme se a compra não cria uma conta recorrente ou parcelada que prejudique os próximos meses.`
+      : `Eu não recomendaria essa despesa como gasto de luxo agora. Ela supera o orçamento de luxo de ${moeda(luxo)}. Seu disponível total após contas é ${moeda(disponivel)}, então vale preservar a reserva e os investimentos.`;
+  } else {
+    resposta = `Seu dinheiro disponível após as contas é ${moeda(disponivel)}. O planejamento separa uma parcela para luxo, ${reserva} para reserva e ${investimentos} para investimentos. Se você me disser o valor e o objetivo de uma compra, eu avalio o impacto.`;
+  }
+
+  box.innerHTML = `<div class="small">ASSISTENTE</div><p class="assistant-response">${escapeHTML(resposta)}</p>`;
+}
+
+function carregarPlanejamento(){
+  const raw = localStorage.getItem("evolve_planejamento");
+  if(!raw) return;
+  try{
+    const d = JSON.parse(raw);
+    document.getElementById("reservaAtual").value = d.reservaAtual ?? 0;
+    document.getElementById("mesesReserva").value = d.meses ?? 6;
+    document.getElementById("estudosMensal").value = d.estudos ?? 0;
+    document.getElementById("academiaMensal").value = d.academia ?? 0;
+  }catch(e){}
+}
+
+/* Recalcula quando a tela financeira é aberta. */
+const _mostrarFinanceiroOriginal = mostrarFinanceiro;
+mostrarFinanceiro = function(){
+  _mostrarFinanceiroOriginal();
+  carregarPlanejamento();
+  calcularPlanejamento();
+};
+
 </script>
 </body>
 </html>

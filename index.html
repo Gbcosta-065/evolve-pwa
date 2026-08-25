@@ -311,14 +311,15 @@ function salvarMes(){
 function proximoPagamentoParaCompetencia(chave){
   const p=partesMes(chave);
   function ehFeriadoNacional(ano,mes,dia){
-    const data=String(dia).padStart(2,"0")+"/"+String(mes+1).padStart(2,"0");
+    const data=String(dia).padStart(2,"0")+"/"+String(mes).padStart(2,"0");
     return ["01/01","21/04","01/05","07/09","12/10","02/11","15/11","25/12"].includes(data);
   }
   function quinto(ano,mes){
     let count=0;
     for(let d=1;d<=31;d++){
-      const dt=new Date(ano,mes,d);
-      if(dt.getMonth()!==mes) break;
+      // mes aqui é 1-12; o construtor Date usa mês 0-11.
+      const dt=new Date(ano,mes-1,d);
+      if(dt.getMonth()!==mes-1) break;
       const diaSemana=dt.getDay();
       if(diaSemana!==0&&diaSemana!==6&&!ehFeriadoNacional(ano,mes,d)){
         count++;
@@ -328,7 +329,7 @@ function proximoPagamentoParaCompetencia(chave){
     return null;
   }
   // O salário referente à competência é pago no quinto dia útil do mês seguinte.
-  let ano=p.ano,mes=p.mes; mes++;
+  let ano=p.ano,mes=p.mes+1;
   if(mes===13){mes=1;ano++;}
   return quinto(ano,mes);
 }

@@ -310,19 +310,40 @@ function salvarMes(){
 
 function proximoPagamentoParaCompetencia(chave){
   const p=partesMes(chave);
+
   function quinto(ano,mes){
     let count=0;
+
     for(let d=1;d<=31;d++){
       const dt=new Date(ano,mes,d);
+
       if(dt.getMonth()!==mes) break;
-      if(dt.getDay()!==0){count++;if(count===5)return dt;}
+
+      if(dt.getDay()!==0){
+        count++;
+
+        if(count===5){
+          return dt;
+        }
+      }
     }
+
     return null;
   }
-  // O salário referente à competência é pago no quinto dia útil do mês seguinte.
-  let ano=p.ano,mes=p.mes; mes++;
-  if(mes===13){mes=1;ano++;}
-  return quinto(ano,mes);
+
+  // O salário referente à competência é pago no
+  // 5º dia útil do mês seguinte.
+  let ano=p.ano;
+  let mes=p.mes;
+
+  mes++;
+
+  if(mes===13){
+    mes=1;
+    ano++;
+  }
+
+  return quinto(ano,mes-1);
 }
 function atualizarPagamento(){
   const d=proximoPagamentoParaCompetencia(mesSelecionado);
